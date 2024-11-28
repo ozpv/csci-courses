@@ -12,17 +12,31 @@ use std::env::temp_dir;
 /// the container will copy it on execute
 /// sadly needs to be hardcoded
 /// but docker makes it easy to update
+/// also could use include_bytes! instead
+/// of writing it into the source file
+/// inside container.rs
 #[derive(Deserialize)]
 pub enum AssignmentType {
     Example,
+    // could expand on it like this
+    // would have to add lifetime parameter
+    // Example { filename: &'a str,  },
 }
+
+/// could do something like this for
+/// support of compiling multiple languages
+// #[derive(Deserialize)]
+// pub enum Lang {
+//     Cpp { code: String },
+//     Php { code: String },
+// }
 
 #[derive(Deserialize)]
 pub struct CompileJson {
     cpp_code: String,
     // json "null" for None
     // and just the enum's name for
-    // the assignment example
+    // the assignment
     // {"assignment":"Example"}
     assignment: Option<AssignmentType>,
 }
@@ -60,6 +74,7 @@ pub async fn compile(Json(options): Json<CompileJson>) -> impl IntoResponse {
         // TODO: separate user errors from compiler errors
         Some(1) => {
             println!("Error: {err}");
+            println!("Output: {out}");
             Html(format!("<a>{err}</a>"))
         }
         // success

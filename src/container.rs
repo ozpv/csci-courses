@@ -16,8 +16,6 @@ Works
 pub struct Container<'a> {
     /// C++ source code
     /// sent from textarea
-    /// for some reason, rust thinks it isnt used but is
-    /// in the new function
     #[allow(dead_code)]
     cpp_code: &'a str,
     /// Output directory of code and extra files
