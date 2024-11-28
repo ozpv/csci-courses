@@ -1,0 +1,8 @@
+{
+  "name": "csci-courses",
+  "version": "1.0.0",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.4.15"
+  }
+}
