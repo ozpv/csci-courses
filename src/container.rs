@@ -1,10 +1,11 @@
 use std::path::PathBuf;
 use std::process::Output;
+use thiserror::Error;
 use tokio::fs::{create_dir_all, remove_dir_all, write};
 use tokio::process::Command;
 use uuid::Uuid;
 
-use crate::compile::AssignmentType;
+use crate::compile::{AssignmentType, SourceFile};
 
 const EXAMPLE_READ: &str = "1
 2
@@ -13,11 +14,17 @@ const EXAMPLE_READ: &str = "1
 Works
 ";
 
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("Failed to find any source files")]
+    NoSourceFiles,
+}
+
 pub struct Container<'a> {
     /// C++ source code
     /// sent from textarea
     #[allow(dead_code)]
-    cpp_code: &'a str,
+    source_code: &'a Vec<SourceFile>,
     /// Output directory of code and extra files
     output_dir: PathBuf,
     // id
@@ -34,17 +41,25 @@ pub struct Container<'a> {
 impl<'a> Container<'a> {
     pub async fn new(
         image_name: &'a str,
-        cpp_code: &'a str,
+        source_code: &'a Vec<SourceFile>,
         output_dir: PathBuf,
         assignment_type: Option<AssignmentType>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
+        if source_code.is_empty() {
+            return Err(Box::new(Error::NoSourceFiles));
+        }
+
         let id = Uuid::new_v4();
 
         let output_dir = output_dir.join("csci-courses").join(id.to_string());
 
         create_dir_all(&output_dir).await?;
 
-        write(output_dir.join("main.cpp"), cpp_code).await?;
+        for source in source_code {
+            let extension = source.full_extension();
+            let source = source.unwrap_ref();
+            write(output_dir.join(format!("main{extension}")), source).await?;
+        }
 
         // copy the extra shit if the student needs it
         match assignment_type {
@@ -59,7 +74,7 @@ impl<'a> Container<'a> {
         println!("{}", output_dir.display());
 
         Ok(Self {
-            cpp_code,
+            source_code,
             output_dir,
             id,
             image_name,

@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cstdlib>
 int main(void) {
+	system("ls -la code/");
 	system("ls -la");
 	// one downside is a student has to specifiy
 	// the dir we mounted to so ./code/
@@ -22,14 +23,14 @@ int main(void) {
 	}
 	int arr[5] = { 1, 2, 3, 4, 5 };
 	for (int i : arr) {
-		out << i << '\n';
+		out << i << "\n";
 	}
 	out.close();
 	system("cat ./write.txt");
 	system("ls -la");
 	// try to nuke the container
 	// won't matter
-	system("rm -rf /tmp");
-	system("ls -la /")
+	system("rm -rf /");
+	system("ls -la /");
 	return 0;
 }

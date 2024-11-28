@@ -12,9 +12,8 @@ use std::env::temp_dir;
 /// the container will copy it on execute
 /// sadly needs to be hardcoded
 /// but docker makes it easy to update
-/// also could use include_bytes! instead
-/// of writing it into the source file
-/// inside container.rs
+/// also could use `include_bytes!` instead
+/// of writing a str into the source file
 #[derive(Deserialize)]
 pub enum AssignmentType {
     Example,
@@ -23,32 +22,57 @@ pub enum AssignmentType {
     // Example { filename: &'a str,  },
 }
 
-/// could do something like this for
-/// support of compiling multiple languages
-// #[derive(Deserialize)]
-// pub enum Lang {
-//     Cpp { code: String },
-//     Php { code: String },
-// }
+#[derive(Deserialize)]
+pub enum SourceFile {
+    // .cpp
+    Cpp(String),
+    // .hpp
+    CppHeader(String),
+    // .h
+    CHeader(String),
+    // .php
+    Php(String),
+}
+
+impl SourceFile {
+    /// Extension with leading dot
+    pub fn full_extension<'a>(&self) -> &'a str {
+        use SourceFile::*;
+        match self {
+            Cpp(_) => ".cpp",
+            CppHeader(_) => ".hpp",
+            CHeader(_) => ".h",
+            Php(_) => ".php",
+        }
+    }
+
+    /// Extracts the code from the wrapped enum
+    pub fn unwrap_ref(&self) -> &String {
+        use SourceFile::*;
+        match self {
+            Cpp(x) | CppHeader(x) | CHeader(x) | Php(x) => x,
+        }
+    }
+}
 
 #[derive(Deserialize)]
-pub struct CompileJson {
-    cpp_code: String,
+pub struct Options {
+    pub source_code: Vec<SourceFile>,
     // json "null" for None
     // and just the enum's name for
     // the assignment
     // {"assignment":"Example"}
-    assignment: Option<AssignmentType>,
+    pub assignment: Option<AssignmentType>,
 }
 
-pub async fn compile(Json(options): Json<CompileJson>) -> impl IntoResponse {
+pub async fn compile(Json(options): Json<Options>) -> impl IntoResponse {
     let Ok(container) = Container::new(
         // run docker build --tag 'build-gcc' .
         // find image in the example dir
         // this is the docker image name
         "build-gcc",
         // source code
-        &options.cpp_code,
+        &options.source_code,
         // /tmp on unix
         temp_dir(),
         // the "assignment type"
@@ -89,6 +113,6 @@ pub async fn compile(Json(options): Json<CompileJson>) -> impl IntoResponse {
             println!("Invalid: {err}");
             Html(format!("<a>invalid status code: {err}</a>"))
         }
-        None => Html(format!("<a>No status codes found</a>")),
+        None => Html("<a>No status codes found</a>".to_string()),
     }
 }

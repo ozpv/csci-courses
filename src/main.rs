@@ -49,7 +49,7 @@ async fn main() {
             CorsLayer::new()
                 .allow_methods([Method::GET, Method::POST])
                 // important for sending Json
-                .allow_headers([header::CONTENT_TYPE])
+                .allow_headers([header::CONTENT_TYPE]),
         );
 
     // ideally, use nginx as a reverse proxy when deployed
