@@ -2,9 +2,11 @@
 <html lang="en">
   <head>
     <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+    <script src="/components/navbar.js"></script>
+    <script src="/components/footer.js"></script>
   </head>
   <body>
-	<p>Test button</p>
-    <button hx-get="/api" hx-swap="textContent">click me</button>
+	<cs-navbar></cs-navbar>
+	<cs-footer></cs-footer>
   </body>
 </html>

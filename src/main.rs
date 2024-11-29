@@ -32,6 +32,7 @@ async fn main() {
     // dir of frontend + other files
     // FOR DEBUG BUILDS (cargo watch -x run): relative to the Cargo.toml file
     let site_root = "./htmx";
+    let assets_dir = "./assets";
 
     // build our routes
     let routes = Router::new()
@@ -41,6 +42,10 @@ async fn main() {
         .nest_service(
             "/",
             ServeDir::new(site_root)
+                .not_found_service(ServeFile::new(format!("{site_root}/404.html"))),
+        ).nest_service(
+            "/assets",
+            ServeDir::new(assets_dir)
                 .not_found_service(ServeFile::new(format!("{site_root}/404.html"))),
         )
         // enable gzip compression
