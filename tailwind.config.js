@@ -3,12 +3,8 @@ module.exports = {
   content: {
     files: [
 		"./src/**/*.rs",
-		"./htmx/**/*.html",
-		"./htmx/**/*.js" 
+		"./htmx/**/*.{html,js}" 
 	],
-    transform: {
-      rs: (content) => content.replace(/(?:^|\s)class:/g, " "),
-    },
   },
 /* catppuccin theme */
 /* light: latte */
@@ -117,6 +113,9 @@ module.exports = {
 		},
 		transparent: 'transparent',
       	current: 'currentColor',
+	},
+	fontFamily: {
+		inter: ['Inter', 'sans-serif'],
 	},
   },
   plugins: [],

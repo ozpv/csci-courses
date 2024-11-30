@@ -43,7 +43,8 @@ async fn main() {
             "/",
             ServeDir::new(site_root)
                 .not_found_service(ServeFile::new(format!("{site_root}/404.html"))),
-        ).nest_service(
+        )
+        .nest_service(
             "/assets",
             ServeDir::new(assets_dir)
                 .not_found_service(ServeFile::new(format!("{site_root}/404.html"))),
