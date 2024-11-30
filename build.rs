@@ -1,17 +1,20 @@
 use std::process::Command;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     // always trigger the build script
-    println!("cargo:rerun-if-changed=NULL");
+    println!("cargo:rerun-if-changed=.");
+
+    let pwd = std::env::current_dir()?;
+    let input = pwd.join("style").join("tailwind.css");
+    let output = pwd.join("assets").join("csci-courses.css");
 
     println!("Building tailwindcss");
-    let output = Command::new("pnpm")
+    let output = Command::new("tailwindcss")
         .args([
-            "tailwindcss",
             "-i",
-            "/style/tailwind.css",
+            input.as_os_str().to_str().unwrap(),
             "-o",
-            "/assets/csci-courses.css",
+            output.as_os_str().to_str().unwrap(),
             "--minify",
         ])
         .output()
@@ -21,4 +24,6 @@ fn main() {
         "{}",
         String::from_utf8(output.stdout).expect("stdout contained invalid UTF-8")
     );
+
+    Ok(())
 }
