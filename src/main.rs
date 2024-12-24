@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use axum::{
     http::{header, Method},
     response::{Html, IntoResponse},
@@ -9,6 +11,7 @@ use tower_http::{
     compression::CompressionLayer,
     cors::CorsLayer,
     services::{ServeDir, ServeFile},
+    timeout::TimeoutLayer,
 };
 
 // TODO: better error handling
@@ -50,12 +53,13 @@ async fn main() {
                 .not_found_service(ServeFile::new(format!("{site_root}/404.html"))),
         )
         // enable gzip compression
-        .layer(CompressionLayer::new())
+        .layer(CompressionLayer::new().gzip(true))
+        .layer(TimeoutLayer::new(Duration::from_secs(10)))
         .layer(
             CorsLayer::new()
                 .allow_methods([Method::GET, Method::POST])
                 // important for sending Json
-                .allow_headers([header::CONTENT_TYPE]),
+                .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]),
         );
 
     // ideally, use nginx as a reverse proxy when deployed
