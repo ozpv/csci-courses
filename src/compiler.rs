@@ -102,7 +102,7 @@ impl Compiler {
             .await
             .map_err(|_| CompilerError::DirectoryCreation)?;
 
-        for file in source_code.into_iter() {
+        for file in source_code {
             let ext = file.extension();
             let FileData { name, contents } = file.unwrap();
             let path = output_dir.join(format!("{name}{ext}"));
@@ -123,7 +123,7 @@ impl Compiler {
         &self,
         files: impl IntoIterator<Item = FileData>,
     ) -> Result<(), CompilerError> {
-        for file in files.into_iter() {
+        for file in files {
             let FileData { name, contents } = file;
             write(name, contents)
                 .await
@@ -159,7 +159,7 @@ impl Compiler {
             .arg(self.image_name)
             .output()
             .await
-            .or_else(|_| Err(CompilerError::SpawnError))
+            .map_err(|_| CompilerError::SpawnError)
     }
 }
 
