@@ -2,7 +2,7 @@
 FROM debian:latest
 
 # dir for container
-WORKDIR /csci-courses
+WORKDIR /output
 
 # install dev tools
 RUN apt-get update && apt install -y g++
